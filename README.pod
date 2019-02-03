@@ -1,0 +1,55 @@
+=head1 NAME
+
+libcallfilt - library call filter
+
+=head1 SYNOPSIS
+
+   libcallfilt denyexec COMMAND ARG [,...]
+
+=head1 DESCRIPTION
+
+libcallfilt is a wrapper for dynamically linked executables, capable of hooking into function calls into shared libraries.
+
+It can provide an extra layer of security when you're allowing a user to execute a restricted set of commands. Many commands have options or features that can be used to execute other commands, so to make your command restriction effective you need to ensure that you're blocking or filtering all such options of all the commands that you're allowing. If you miss one, your whole security model is defeated.
+
+For commands that don't need to execute anything else in order to work, you can use libcallfilt's C<denyexec> filter to block any calls they make to the libc functions for running external commands. That way if you make a mistake in configuring the option restritcions, you have a second line of defense.
+
+Currently only the C<denyexec> filter is implemented.
+
+=head1 DENYEXEC
+
+   libcallfilt denyexec COMMAND ARG [,...]
+
+Executes the specified command and arguments, with the LD_PRELOAD environment variable set so that calls to the following libc functions are intercepted and blocked:
+
+=over
+
+=item system()
+
+=item popen()
+
+=item execl()
+
+=item execlp()
+
+=item execle()
+
+=item execv()
+
+=item execve()
+
+=item execvp()
+
+=item execvpe()
+
+=item fexecve()
+
+=back
+
+=head1 LIMITATIONS
+
+Because libcallfilt depends on the LD_PRELOAD mechanism, it is only effective with dynamically linked executables. Programs that make exec-type system calls directly rather than via the libc wrappers cannot be protected.
+
+=head1 AUTHOR
+
+Nick Cleaton <nick@cleaton.net>

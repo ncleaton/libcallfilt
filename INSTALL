@@ -1,0 +1,6 @@
+# if building from the git repo and you don't yet have ./configure
+autoreconf --install
+
+./configure
+make
+sudo make install
