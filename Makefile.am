@@ -1,4 +1,4 @@
-ACLOCAL_AMFLAGS = '-I m4'
+ACLOCAL_AMFLAGS = '-Im4'
 
 libcallfilt.1: README.pod
 	pod2man --name libcallfilt --center ' ' --release ' ' --official $< $@.tmp && mv -f $@.tmp $@
