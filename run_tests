@@ -1,0 +1,19 @@
+#!/bin/sh
+
+harn=./t_exec_harness
+
+for mode in `$harn list`; do
+    echo "testing execution via $mode"
+
+    $harn "$mode" "return 99"
+    if [ $? != 99 ] ; then
+        echo "untrapped exec via $mode failed" >&2
+        exit 1
+    fi
+
+    LD_PRELOAD=./libdenyexec.so $harn "$mode" "return 99" 2>/dev/null
+    if [ $? != 0 ] ; then
+        echo "denyexec trapped exec via $mode was not trapped" >&2
+        exit 1
+    fi
+done

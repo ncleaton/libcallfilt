@@ -14,6 +14,7 @@ m4
 missing
 *.o
 *.lo
+*.so
 *.la
 *.1
 .deps
@@ -21,3 +22,7 @@ config.*
 libtool
 .libs
 libcallfilt
+t_exec_harness
+*.log
+test-driver
+*.trs
