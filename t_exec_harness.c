@@ -3,6 +3,14 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#ifdef HAVE_EXECVEAT
+#  include <sys/types.h>
+#  include <dirent.h>
+#endif
+#ifdef HAVE_POSIX_SPAWN
+#  include <spawn.h>
+#endif
+#ifdef HAVE_POSIX_SPAWN
 
 extern char **environ;
 
@@ -17,6 +25,14 @@ do_exec_via_execve(char **argv)
 {
     return execve(argv[0], argv, environ);
 }
+
+#ifdef HAVE_EXECVEAT
+int
+do_exec_via_execveat(char **argv)
+{
+    return execveat(dirfd(opendir(".")), argv[0], argv, environ, 0);
+}
+#endif
 
 int
 do_exec_via_execv(char **argv)
@@ -76,22 +92,61 @@ do_exec_via_system(char **argv)
     return ret;
 }
 
+#ifdef HAVE_POSIX_SPAWN
+int
+do_exec_via_posix_spawn(char **argc)
+{
+    pid_t pid;
+    int ret;
+
+    ret = posix_spawn(&pid, argv[0], NULL, NULL, argv, environ);
+    if (ret == 0) {
+        wait(&ret);
+        exit(ret >> 8);
+    }
+    errno = ret
+    return -1;
+}
+
+int
+do_exec_via_posix_spawnp(char **argc)
+{
+    pid_t pid;
+    int ret;
+
+    ret = posix_spawnp(&pid, argv[0], NULL, NULL, argv, environ);
+    if (ret == 0) {
+        wait(&ret);
+        exit(ret >> 8);
+    }
+    errno = ret
+    return -1;
+}
+#endif
+
 struct exec_method {
     char *name;
     int (*call)(char**);
 };
 
 struct exec_method methods[] = {
-    {"execvp",  &do_exec_via_execvp},
-    {"execve",  &do_exec_via_execve},
-    {"execv",   &do_exec_via_execv},
-    {"execvpe", &do_exec_via_execvpe},
-    {"execl",   &do_exec_via_execl},
-    {"execlp",  &do_exec_via_execlp},
-    {"execle",  &do_exec_via_execle},
-    {"fexecve", &do_exec_via_fexecve},
-    {"popen",   &do_exec_via_popen},
-    {"system",  &do_exec_via_system},
+    {"execvp",       &do_exec_via_execvp},
+    {"execve",       &do_exec_via_execve},
+#ifdef HAVE_EXECVEAT
+    {"execveat",     &do_exec_via_execveat},
+#endif
+    {"execv",        &do_exec_via_execv},
+    {"execvpe",      &do_exec_via_execvpe},
+    {"execl",        &do_exec_via_execl},
+    {"execlp",       &do_exec_via_execlp},
+    {"execle",       &do_exec_via_execle},
+    {"fexecve",      &do_exec_via_fexecve},
+    {"popen",        &do_exec_via_popen},
+    {"system",       &do_exec_via_system},
+#ifdef HAVE_POSIX_SPAWN
+    {"posix_spawn",  &do_exec_via_posix_spawn},
+    {"posix_spawnp", &do_exec_via_posix_spawnp},
+#endif
     {NULL, NULL},
 };
 
