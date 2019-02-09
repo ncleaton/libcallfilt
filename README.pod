@@ -12,7 +12,7 @@ libcallfilt is a wrapper for dynamically linked executables, capable of hooking 
 
 It can provide an extra layer of security when you're allowing a user to execute a restricted set of commands. Many commands have options or features that can be used to execute other commands, so to make your command restriction effective you need to ensure that you're blocking or filtering all such options of all the commands that you're allowing. If you miss one, your whole security model is defeated.
 
-For commands that don't need to execute anything else in order to work, you can use libcallfilt's C<denyexec> filter to block any calls they make to the libc functions for running external commands. That way if you make a mistake in configuring the option restritcions, you have a second line of defense.
+For commands that don't need to execute anything else in order to work, you can use libcallfilt's C<denyexec> filter to block any calls they make to the libc functions for running external commands. That way if you make a mistake in configuring the option restrictions, you have a second line of defense.
 
 Currently only the C<denyexec> filter is implemented.
 
