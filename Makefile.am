@@ -4,7 +4,7 @@ libcallfilt.1: README.pod
 	pod2man --name libcallfilt --center ' ' --release ' ' --official $< $@.tmp && mv -f $@.tmp $@
 
 libdenyexec.so: lib-denyexec.c
-    $(COMPILE) -shared -fPIC -o $@ $<
+	$(COMPILE) -shared -fPIC -o $@ $<
 
 overloaddir = $(pkglibdir)
 overload_DATA = libdenyexec.so
