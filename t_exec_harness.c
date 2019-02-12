@@ -10,7 +10,6 @@
 #ifdef HAVE_POSIX_SPAWN
 #  include <spawn.h>
 #endif
-#ifdef HAVE_POSIX_SPAWN
 
 extern char **environ;
 

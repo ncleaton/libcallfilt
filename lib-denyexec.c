@@ -22,6 +22,12 @@ int execve(const char *filename, char *const argv[], char *const envp[])
     return _exec_nope("execve", filename);
 }
 
+int execveat(int dirfd, const char *pathname,
+        char *const argv[], char *const envp[], int flags)
+{
+    return _exec_nope("execveat", pathname);
+}
+    
 int execv(const char *path, char *const argv[])
 {
     return _exec_nope("execv", path);
@@ -66,4 +72,18 @@ int system(const char *command)
     fprintf(stderr, "libcallfilt blocked system(%s)\n", command);
     errno = EACCES;
     return -1;
+}
+
+int posix_spawn(pid_t *pid, const char *path,
+        const void *file_actions, const void *attrp,
+        char *const argv[], char *const envp[])
+{
+    return _exec_nope("posix_spawn", path);
+}
+
+int posix_spawnp(pid_t *pid, const char *file,
+        const void *file_actions, const void *attrp,
+        char *const argv[], char *const envp[])
+{
+    return _exec_nope("posix_spawnp", file);
 }
