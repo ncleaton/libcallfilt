@@ -8,7 +8,7 @@ static int
 _exec_nope(const char *libcall, const char *prog)
 {
     fprintf(stderr, "libcallfilt blocked %s(%s)\n", libcall, prog);
-    errno = EACCES;
+    errno = EPERM;
     return -1;
 }
 
@@ -56,21 +56,21 @@ int execle(const char *path, const char *arg, ...)
 int fexecve(int fd, char *const argv[], char *const envp[])
 {
     fprintf(stderr, "libcallfilt blocked fexecve()\n");
-    errno = EACCES;
+    errno = EPERM;
     return -1;
 }
 
 FILE *popen(const char *command, const char *type)
 {
     fprintf(stderr, "libcallfilt blocked popen(%s)\n", command);
-    errno = EACCES;
+    errno = EPERM;
     return NULL;
 }
 
 int system(const char *command)
 {
     fprintf(stderr, "libcallfilt blocked system(%s)\n", command);
-    errno = EACCES;
+    errno = EPERM;
     return -1;
 }
 

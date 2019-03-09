@@ -188,8 +188,8 @@ main(int argc, char** argv) {
                 return 1;
             }
 
-            if (errno != EACCES) {
-                fprintf(stderr, "%s call set errno to %s not EACCES\n", methods[i].name, strerror(errno));
+            if (errno != EPERM) {
+                fprintf(stderr, "%s call set errno to %s not EPERM\n", methods[i].name, strerror(errno));
                 return 1;
             }
 

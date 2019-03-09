@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 
 #define MAX_LD_PRELOAD 2048
 
@@ -8,26 +10,50 @@ usage(char *progname) {
     fprintf(stderr, "usage: %s denyexec COMMAND ARG ...\n", progname);
 }
 
-void
-add_ld_preload(char *libname)
-{
-    char *buf, *ldp;
+char *
+heap_sprintf_ss(char *format, char *s1, char *s2) {
+    char *buf;
+    int size, len;
 
-    buf = malloc(MAX_LD_PRELOAD);
+    size = strlen(format) + strlen(s1) + strlen(s2);
+    size -= 4; // 2 instances of "%s" won't be in the output
+    size += 1; // terminating NULL
+    buf = malloc(size);
     if (!buf) {
         fprintf(stderr, "out of memory\n");
         exit(1);
     }
+    len = snprintf(format, size, s1, s2);
+    if (len < 0) {
+        perror("snprintf");
+        exit(1);
+    }
+    if (len != size-1) {
+        fprintf(stderr, "ERROR: unexpected snprintf results %d %d\n", len, size);
+        exit(1);
+    }
+    return buf;
+}
 
-    ldp = getenv("LD_PRELOAD");
-    if (ldp) {
-        snprintf(buf, MAX_LD_PRELOAD, "%s/lib%s.so %s", INST_PKGLIBDIR, libname, ldp);
-    } else {
-        snprintf(buf, MAX_LD_PRELOAD, "%s/lib%s.so", INST_PKGLIBDIR, libname);
+void
+add_ld_preload(char *libname)
+{
+    char *new_ldp, *old_ldp, *tmp_ldp;
+
+    old_ldp = getenv("LD_PRELOAD");
+    new_ldp = heap_sprintf_ss("%s/lib%s.so", INST_PKGLIBDIR, libname);
+    if (old_ldp) {
+        tmp_ldp = heap_sprintf_ss("%s %s", new_ldp, old_ldp);
+        free(new_ldp);
+        new_ldp = tmp_ldp;
     }
 
-    setenv("LD_PRELOAD", buf, 1);
-    free(buf);
+    if (setenv("LD_PRELOAD", new_ldp, 1) < 0) {
+        perror("setenv");
+        exit(1);
+    }
+
+    free(new_ldp);
 }
         
 int main(int argc, char** argv) {
